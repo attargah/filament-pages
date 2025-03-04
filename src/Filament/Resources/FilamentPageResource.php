@@ -8,12 +8,12 @@ use Beier\FilamentPages\Filament\Resources\FilamentPageResource\Pages\EditFilame
 use Beier\FilamentPages\Filament\Resources\FilamentPageResource\Pages\ListFilamentPages;
 use Beier\FilamentPages\Models\FilamentPage;
 use Carbon\Carbon;
-use Filament\Forms\Components\Card;
 use Filament\Forms\Components\DatePicker;
 use Filament\Forms\Components\Grid;
 use Filament\Forms\Components\Group;
 use Filament\Forms\Components\Hidden;
 use Filament\Forms\Components\Placeholder;
+use Filament\Forms\Components\Section;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\TextInput;
 use Filament\Forms\Form;
@@ -168,9 +168,9 @@ class FilamentPageResource extends Resource
             ]);
     }
 
-    public static function getPrimaryColumnSchema(): Component
+    public static function getPrimaryColumnSchema(): Section
     {
-        return Card::make()
+        return Section::make()
             ->columns(2)
             ->schema([
                 ...static::insertBeforePrimaryColumnSchema(),
@@ -190,9 +190,9 @@ class FilamentPageResource extends Resource
             ]);
     }
 
-    public static function getSecondaryColumnSchema(): Component
+    public static function getSecondaryColumnSchema(): Section
     {
-        return Card::make()
+        return Section::make()
             ->schema([
                 ...static::insertBeforeSecondaryColumnSchema(),
                 Select::make('data.template')
