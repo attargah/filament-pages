@@ -11,14 +11,15 @@ use Carbon\Carbon;
 use Filament\Forms\Components\Card;
 use Filament\Forms\Components\Component;
 use Filament\Forms\Components\DatePicker;
-use Filament\Forms\Components\Group;
+use Filament\Forms\Components\Grid;
 use Filament\Forms\Components\Hidden;
 use Filament\Forms\Components\Placeholder;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\TextInput;
-use Filament\Resources\Form;
+use Filament\Forms\Form;
 use Filament\Resources\Resource;
-use Filament\Resources\Table;
+use Filament\Tables;
+use Filament\Tables\Table;
 use Filament\Tables\Actions\DeleteAction;
 use Filament\Tables\Actions\DeleteBulkAction;
 use Filament\Tables\Actions\EditAction;
@@ -31,14 +32,26 @@ use Illuminate\Support\Str;
 
 class FilamentPageResource extends Resource
 {
-    public static function getRecordRouteKeyName(): ?string
+    protected static ?string $navigationIcon = 'heroicon-o-document-text';
+
+    public static function getNavigationGroup(): ?string
     {
-        return 'id';
+        return __('filament-pages::filament-pages.filament.navigation.group');
+    }
+
+    public static function getNavigationSort(): ?int
+    {
+        return (int) __('filament-pages::filament-pages.filament.navigation.sort');
     }
 
     public static function getModel(): string
     {
         return config('filament-pages.filament.model', FilamentPage::class);
+    }
+
+    public static function getRecordRouteKeyName(): ?string
+    {
+        return 'id';
     }
 
     public static function getRecordTitleAttribute(): ?string
@@ -56,38 +69,25 @@ class FilamentPageResource extends Resource
         return __('filament-pages::filament-pages.filament.pluralLabel');
     }
 
-    protected static function getNavigationGroup(): ?string
-    {
-        return __('filament-pages::filament-pages.filament.navigation.group');
-    }
-
-    protected static function getNavigationSort(): ?int
-    {
-        return (int) __('filament-pages::filament-pages.filament.navigation.sort');
-    }
-
-    protected static function getNavigationIcon(): string
-    {
-        return __('filament-pages::filament-pages.filament.navigation.icon');
-    }
-
     public static function form(Form $form): Form
     {
         return $form
             ->schema([
-                Group::make()
+                Grid::make()
                     ->schema([
-                        static::getPrimaryColumnSchema(),
-                        ...static::getTemplateSchemas(),
+                        Grid::make()
+                            ->schema([
+                                static::getPrimaryColumnSchema(),
+                                ...static::getTemplateSchemas(),
+                            ])
+                            ->columnSpan(['lg' => 7]),
+
+                        static::getSecondaryColumnSchema(),
                     ])
-                    ->columnSpan(['lg' => 7]),
-
-                static::getSecondaryColumnSchema(),
-
-            ])
-            ->columns([
-                'sm' => 9,
-                'lg' => null,
+                    ->columns([
+                        'sm' => 9,
+                        'lg' => null,
+                    ]),
             ]);
     }
 
@@ -95,37 +95,37 @@ class FilamentPageResource extends Resource
     {
         return $table
             ->columns([
-                TextColumn::make('title')
+                Tables\Columns\TextColumn::make('title')
                     ->label(__('filament-pages::filament-pages.filament.form.title.label'))
                     ->searchable()
                     ->sortable(),
 
-                TextColumn::make('slug')
+                Tables\Columns\TextColumn::make('slug')
                     ->label(__('filament-pages::filament-pages.filament.form.slug.label'))
                     ->icon('heroicon-o-external-link')
                     ->iconPosition('after')
                     ->getStateUsing(fn (FilamentPage $record) => url($record->slug))
                     ->searchable()
                     ->url(
-                        url: fn (FilamentPage $record) => url($record->slug),
+                        fn (FilamentPage $record) => url($record->slug),
                         shouldOpenInNewTab: true
                     )
                     ->sortable()
                     ->toggleable(isToggledHiddenByDefault: false),
 
-                BadgeColumn::make('status')
+                Tables\Columns\BadgeColumn::make('status')
                     ->getStateUsing(fn (FilamentPage $record): string => $record->published_at->isPast() && ($record->published_until?->isFuture() ?? true) ? __('filament-pages::filament-pages.filament.table.status.published') : __('filament-pages::filament-pages.filament.table.status.draft'))
                     ->colors([
                         'success' => __('filament-pages::filament-pages.filament.table.status.published'),
                         'warning' => __('filament-pages::filament-pages.filament.table.status.draft'),
                     ]),
 
-                TextColumn::make('published_at')
+                Tables\Columns\TextColumn::make('published_at')
                     ->label(__('filament-pages::filament-pages.filament.form.published_at.label'))
                     ->date(__('filament-pages::filament-pages.filament.form.published_at.displayFormat')),
             ])
             ->filters([
-                Filter::make('published_at')
+                Tables\Filters\Filter::make('published_at')
                     ->form([
                         DatePicker::make('published_from')
                             ->label(__('filament-pages::filament-pages.filament.form.published_at.label'))
@@ -158,12 +158,13 @@ class FilamentPageResource extends Resource
                     }),
             ])
             ->actions([
-                EditAction::make(),
-
-                DeleteAction::make(),
+                Tables\Actions\EditAction::make(),
+                Tables\Actions\DeleteAction::make(),
             ])
             ->bulkActions([
-                DeleteBulkAction::make(),
+                Tables\Actions\BulkActionGroup::make([
+                    Tables\Actions\DeleteBulkAction::make(),
+                ]),
             ]);
     }
 
@@ -300,7 +301,7 @@ class FilamentPageResource extends Resource
         return [
             'index' => ListFilamentPages::route('/'),
             'create' => CreateFilamentPage::route('/create'),
-            'edit' => EditFilamentPage::route('/{record:id}/edit'),
+            'edit' => EditFilamentPage::route('/{record}/edit'),
         ];
     }
 }

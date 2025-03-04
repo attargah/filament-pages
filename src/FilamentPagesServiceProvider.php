@@ -5,20 +5,14 @@ namespace Beier\FilamentPages;
 use Beier\FilamentPages\Contracts\Renderer;
 use Beier\FilamentPages\Filament\Resources\FilamentPageResource;
 use Beier\FilamentPages\Renderer\SimplePageRenderer;
-use Filament\PluginServiceProvider;
+use Filament\Support\Facades\Filament;
 use Spatie\LaravelPackageTools\Commands\InstallCommand;
 use Spatie\LaravelPackageTools\Package;
+use Spatie\LaravelPackageTools\PackageServiceProvider;
 
-class FilamentPagesServiceProvider extends PluginServiceProvider
+class FilamentPagesServiceProvider extends PackageServiceProvider
 {
     public static string $name = 'filament-pages';
-
-    protected function getResources(): array
-    {
-        return [
-            config('filament-pages.filament.resource', FilamentPageResource::class),
-        ];
-    }
 
     public function configurePackage(Package $package): void
     {
@@ -35,10 +29,13 @@ class FilamentPagesServiceProvider extends PluginServiceProvider
             });
     }
 
-    public function boot(): void
+    public function packageBooted(): void
     {
-        parent::boot();
         $this->bindRenderer();
+
+        Filament::registerResources([
+            config('filament-pages.filament.resource', FilamentPageResource::class),
+        ]);
     }
 
     protected function bindRenderer(): void
