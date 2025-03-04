@@ -29,6 +29,7 @@ use Filament\Tables\Filters\Filter;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Str;
+use Filament\Forms\Components\Component;
 
 class FilamentPageResource extends Resource
 {
@@ -168,7 +169,7 @@ class FilamentPageResource extends Resource
             ]);
     }
 
-    public static function getPrimaryColumnSchema(): Section
+    public static function getPrimaryColumnSchema(): Component
     {
         return Section::make()
             ->columns(2)
@@ -190,7 +191,7 @@ class FilamentPageResource extends Resource
             ]);
     }
 
-    public static function getSecondaryColumnSchema(): Section
+    public static function getSecondaryColumnSchema(): Component
     {
         return Section::make()
             ->schema([
