@@ -15,6 +15,7 @@ use Spatie\LaravelPackageTools\Commands\InstallCommand;
 use Spatie\LaravelPackageTools\Package;
 use Spatie\LaravelPackageTools\PackageServiceProvider;
 use Livewire\Features\SupportTesting\Testable;
+use Filament\Facades\Filament;
 
 class FilamentPagesServiceProvider extends PackageServiceProvider
 {
@@ -38,6 +39,12 @@ class FilamentPagesServiceProvider extends PackageServiceProvider
     public function packageBooted(): void
     {
         $this->bindRenderer();
+
+        Filament::serving(function () {
+            Filament::registerResources([
+                FilamentPageResource::class,
+            ]);
+        });
     }
 
     public function packageRegistered(): void
