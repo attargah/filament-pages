@@ -5,10 +5,16 @@ namespace Beier\FilamentPages;
 use Beier\FilamentPages\Contracts\Renderer;
 use Beier\FilamentPages\Filament\Resources\FilamentPageResource;
 use Beier\FilamentPages\Renderer\SimplePageRenderer;
-use Filament\Facades\Filament;
+use Filament\Support\Assets\AlpineComponent;
+use Filament\Support\Assets\Asset;
+use Filament\Support\Assets\Css;
+use Filament\Support\Assets\Js;
+use Filament\Support\Facades\FilamentAsset;
+use Filament\Support\Facades\FilamentIcon;
 use Spatie\LaravelPackageTools\Commands\InstallCommand;
 use Spatie\LaravelPackageTools\Package;
 use Spatie\LaravelPackageTools\PackageServiceProvider;
+use Livewire\Features\SupportTesting\Testable;
 
 class FilamentPagesServiceProvider extends PackageServiceProvider
 {
@@ -32,11 +38,12 @@ class FilamentPagesServiceProvider extends PackageServiceProvider
     public function packageBooted(): void
     {
         $this->bindRenderer();
+    }
 
-        Filament::serving(function () {
-            Filament::registerResources([
-                config('filament-pages.filament.resource', FilamentPageResource::class),
-            ]);
+    public function packageRegistered(): void
+    {
+        $this->app->scoped('filament-pages', function (): FilamentPages {
+            return new FilamentPages();
         });
     }
 
