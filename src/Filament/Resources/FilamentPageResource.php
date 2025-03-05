@@ -52,7 +52,7 @@ class FilamentPageResource extends Resource
 
     public static function getRecordRouteKeyName(): ?string
     {
-        return 'id';
+        return 'slug';
     }
 
     public static function getRecordTitleAttribute(): ?string
@@ -103,7 +103,7 @@ class FilamentPageResource extends Resource
 
                 Tables\Columns\TextColumn::make('slug')
                     ->label(__('filament-pages::filament-pages.filament.form.slug.label'))
-                    ->icon('heroicon-o-external-link')
+                    ->icon('heroicon-o-link')
                     ->iconPosition('after')
                     ->getStateUsing(fn (FilamentPage $record) => url($record->slug))
                     ->searchable()
@@ -276,7 +276,7 @@ class FilamentPageResource extends Resource
             ->map(fn ($class) => Group::make($class::schema())
                 ->afterStateHydrated(fn ($component, $state) => $component->getChildComponentContainer()->fill($state))
                 ->statePath('data.content')
-                ->visible(fn ($get) => $get('data.template') === $class)
+                ->visible(fn ($get) => $get('data.template') === $class)->columnSpanFull()
             )
             ->toArray();
     }

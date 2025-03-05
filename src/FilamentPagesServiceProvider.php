@@ -39,12 +39,6 @@ class FilamentPagesServiceProvider extends PackageServiceProvider
     public function packageBooted(): void
     {
         $this->bindRenderer();
-
-        Panel::configureUsing(function (Panel $panel) {
-            $panel->resources([
-                FilamentPageResource::class
-            ]);
-        });
     }
 
     protected function bindRenderer(): void
