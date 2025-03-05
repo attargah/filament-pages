@@ -35,7 +35,7 @@ class FilamentPagesServiceProvider extends PackageServiceProvider
                     ->askToStarRepoOnGitHub('pascalebeier/filament-pages');
             });
     }
-
+    public function packageRegistered(): void {}
     public function packageBooted(): void
     {
         $this->bindRenderer();
