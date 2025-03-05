@@ -6,6 +6,7 @@ use Beier\FilamentPages\Contracts\FilamentPageTemplate;
 use Beier\FilamentPages\Filament\Resources\FilamentPageResource\Pages\CreateFilamentPage;
 use Beier\FilamentPages\Filament\Resources\FilamentPageResource\Pages\EditFilamentPage;
 use Beier\FilamentPages\Filament\Resources\FilamentPageResource\Pages\ListFilamentPages;
+use Beier\FilamentPages\FilamentPagesPlugin;
 use Beier\FilamentPages\Models\FilamentPage;
 use Carbon\Carbon;
 use Filament\Forms\Components\DatePicker;
@@ -42,7 +43,7 @@ class FilamentPageResource extends Resource
 
     public static function getNavigationSort(): ?int
     {
-        return (int) __('filament-pages::filament-pages.filament.navigation.sort');
+        return (int)__('filament-pages::filament-pages.filament.navigation.sort');
     }
 
     public static function getModel(): string
@@ -105,17 +106,17 @@ class FilamentPageResource extends Resource
                     ->label(__('filament-pages::filament-pages.filament.form.slug.label'))
                     ->icon('heroicon-o-link')
                     ->iconPosition('after')
-                    ->getStateUsing(fn (FilamentPage $record) => url($record->slug))
+                    ->getStateUsing(fn(FilamentPage $record) => url($record->slug))
                     ->searchable()
                     ->url(
-                        fn (FilamentPage $record) => url($record->slug),
+                        fn(FilamentPage $record) => url($record->slug),
                         shouldOpenInNewTab: true
                     )
                     ->sortable()
                     ->toggleable(isToggledHiddenByDefault: false),
 
                 Tables\Columns\BadgeColumn::make('status')
-                    ->getStateUsing(fn (FilamentPage $record): string => $record->published_at->isPast() && ($record->published_until?->isFuture() ?? true) ? __('filament-pages::filament-pages.filament.table.status.published') : __('filament-pages::filament-pages.filament.table.status.draft'))
+                    ->getStateUsing(fn(FilamentPage $record): string => $record->published_at->isPast() && ($record->published_until?->isFuture() ?? true) ? __('filament-pages::filament-pages.filament.table.status.published') : __('filament-pages::filament-pages.filament.table.status.draft'))
                     ->colors([
                         'success' => __('filament-pages::filament-pages.filament.table.status.published'),
                         'warning' => __('filament-pages::filament-pages.filament.table.status.draft'),
@@ -130,29 +131,29 @@ class FilamentPageResource extends Resource
                     ->form([
                         DatePicker::make('published_from')
                             ->label(__('filament-pages::filament-pages.filament.form.published_at.label'))
-                            ->placeholder(fn ($state): string => '18. November '.now()->subYear()->format('Y')),
+                            ->placeholder(fn($state): string => '18. November ' . now()->subYear()->format('Y')),
                         DatePicker::make('published_until')
                             ->label(__('filament-pages::filament-pages.filament.form.published_until.label'))
-                            ->placeholder(fn ($state): string => now()->format('d. F Y')),
+                            ->placeholder(fn($state): string => now()->format('d. F Y')),
                     ])
                     ->query(function (Builder $query, array $data): Builder {
                         return $query
                             ->when(
                                 $data['published_from'],
-                                fn (Builder $query, $date): Builder => $query->whereDate('published_at', '>=', $date),
+                                fn(Builder $query, $date): Builder => $query->whereDate('published_at', '>=', $date),
                             )
                             ->when(
                                 $data['published_until'],
-                                fn (Builder $query, $date): Builder => $query->whereDate('published_at', '<=', $date),
+                                fn(Builder $query, $date): Builder => $query->whereDate('published_at', '<=', $date),
                             );
                     })
                     ->indicateUsing(function (array $data): array {
                         $indicators = [];
                         if ($data['published_from'] ?? null) {
-                            $indicators['published_from'] = 'Published from '.Carbon::parse($data['published_at'])->toFormattedDateString();
+                            $indicators['published_from'] = 'Published from ' . Carbon::parse($data['published_at'])->toFormattedDateString();
                         }
                         if ($data['published_until'] ?? null) {
-                            $indicators['published_until'] = 'Published until '.Carbon::parse($data['published_until'])->toFormattedDateString();
+                            $indicators['published_until'] = 'Published until ' . Carbon::parse($data['published_until'])->toFormattedDateString();
                         }
 
                         return $indicators;
@@ -180,7 +181,7 @@ class FilamentPageResource extends Resource
                     ->columnSpan(1)
                     ->required()
                     ->lazy()
-                    ->afterStateUpdated(fn (string $context, $state, callable $set) => $context === 'create' ? $set('slug', Str::slug($state)) : null),
+                    ->afterStateUpdated(fn(string $context, $state, callable $set) => $context === 'create' ? $set('slug', Str::slug($state)) : null),
 
                 TextInput::make('slug')
                     ->label(__('filament-pages::filament-pages.filament.form.slug.label'))
@@ -198,8 +199,8 @@ class FilamentPageResource extends Resource
                 ...static::insertBeforeSecondaryColumnSchema(),
                 Select::make('data.template')
                     ->reactive()
-                    ->afterStateUpdated(fn (string $context, $state, callable $set) => $set('data.templateName', Str::snake(self::getTemplateName($state))))
-                    ->afterStateHydrated(fn (string $context, $state, callable $set) => $set('data.templateName', Str::snake(self::getTemplateName($state))))
+                    ->afterStateUpdated(fn(string $context, $state, callable $set) => $set('data.templateName', Str::snake(self::getTemplateName($state))))
+                    ->afterStateHydrated(fn(string $context, $state, callable $set) => $set('data.templateName', Str::snake(self::getTemplateName($state))))
                     ->options(static::getTemplates()),
 
                 Hidden::make('data.templateName')
@@ -216,36 +217,38 @@ class FilamentPageResource extends Resource
 
                 Placeholder::make('created_at')
                     ->label(__('filament-pages::filament-pages.filament.form.created_at.label'))
-                    ->hidden(fn (?FilamentPage $record) => $record === null)
-                    ->content(fn (FilamentPage $record): string => $record->created_at->diffForHumans()),
+                    ->hidden(fn(?FilamentPage $record) => $record === null)
+                    ->content(fn(FilamentPage $record): string => $record->created_at->diffForHumans()),
 
                 Placeholder::make('updated_at')
                     ->label(__('filament-pages::filament-pages.filament.form.updated_at.label'))
-                    ->hidden(fn (?FilamentPage $record) => $record === null)
-                    ->content(fn (FilamentPage $record): string => $record->updated_at->diffForHumans()),
+                    ->hidden(fn(?FilamentPage $record) => $record === null)
+                    ->content(fn(FilamentPage $record): string => $record->updated_at->diffForHumans()),
                 ...static::insertAfterSecondaryColumnSchema(),
             ])
             ->columnSpan(['lg' => 2]);
     }
 
-    public static function insertBeforePrimaryColumnSchema(): array
+    public static function insertBeforePrimaryColumnSchema(): Array
     {
-        return [];
+
+        return FilamentPagesPlugin::get()->getBeforePrimaryColumnSchema();
+
     }
 
     public static function insertAfterPrimaryColumnSchema(): array
     {
-        return [];
+        return FilamentPagesPlugin::get()->getAfterPrimaryColumnSchema();
     }
 
     public static function insertBeforeSecondaryColumnSchema(): array
     {
-        return [];
+        return FilamentPagesPlugin::get()->getBeforeSecondaryColumnSchema();
     }
 
     public static function insertAfterSecondaryColumnSchema(): array
     {
-        return [];
+        return FilamentPagesPlugin::get()->getAfterSecondaryColumnSchema();
     }
 
     /**
@@ -262,7 +265,7 @@ class FilamentPageResource extends Resource
     public static function getTemplates(): Collection
     {
         return static::getTemplateClasses()
-            ->mapWithKeys(fn ($class) => [$class => $class::title()]);
+            ->mapWithKeys(fn($class) => [$class => $class::title()]);
     }
 
     public static function getTemplateName($class): string
@@ -273,10 +276,10 @@ class FilamentPageResource extends Resource
     public static function getTemplateSchemas(): array
     {
         return static::getTemplateClasses()
-            ->map(fn ($class) => Group::make($class::schema())
-                ->afterStateHydrated(fn ($component, $state) => $component->getChildComponentContainer()->fill($state))
+            ->map(fn($class) => Group::make($class::schema())
+                ->afterStateHydrated(fn($component, $state) => $component->getChildComponentContainer()->fill($state))
                 ->statePath('data.content')
-                ->visible(fn ($get) => $get('data.template') === $class)->columnSpanFull()
+                ->visible(fn($get) => $get('data.template') === $class)->columnSpanFull()
             )
             ->toArray();
     }
